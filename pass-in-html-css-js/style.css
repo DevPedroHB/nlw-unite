@@ -1,0 +1,53 @@
+body,
+table,
+input,
+button {
+  font: 300 1rem/140% "Roboto", sans-serif;
+}
+
+body {
+  background-color: #121214;
+  color: #ffffff;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table thead {
+  font-size: 0.875rem;
+  line-height: 1rem;
+}
+
+thead th,
+tbody td {
+  padding: 0.75rem 1rem;
+}
+
+tbody td {
+  border-top: 0.0625rem solid #ffffff1a;
+  font-size: 0.8125rem;
+  line-height: 0.9375rem;
+  color: #c4c4cc;
+}
+
+tbody td strong {
+  color: white;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  font-weight: 600;
+}
+
+tbody td small {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+tbody td button {
+  all: unset;
+  color: #9ff9cc;
+}
+
+tbody td button:hover {
+  text-decoration: underline;
+}

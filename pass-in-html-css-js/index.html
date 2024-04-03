@@ -16,6 +16,16 @@
     <title>Pass.in</title>
   </head>
   <body>
+    <form onsubmit="addParticipant(event)">
+      <fieldset>
+        <legend>Inscrição</legend>
+        <div>
+          <input type="text" placeholder="Nome Completo" name="name" required />
+          <input type="email" placeholder="Email" name="email" required />
+          <button type="submit">REALIZAR INSCRIÇÃO</button>
+        </div>
+      </fieldset>
+    </form>
     <table width="100%">
       <thead style="text-align: left">
         <tr>
