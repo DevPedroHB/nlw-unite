@@ -1,19 +1,47 @@
 import { MoreHorizontal, Search } from "lucide-react";
-import { useState } from "react";
-import { attendees } from "../constants/attendees";
+import { ChangeEvent, useState } from "react";
+import { getEventAttendees } from "../data/get-event-attendees";
+import { setSearchParams } from "../functions/set-search-params";
 import dayjs from "../lib/dayjs";
 import { IconButton } from "./icon-button";
 import { Pagination } from "./pagination";
 import { Table } from "./table";
 
 export function AttendeeList() {
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState(() => {
+    const url = new URL(window.location.toString());
+
+    if (url.searchParams.has("search")) {
+      return url.searchParams.get("search") ?? "";
+    }
+
+    return "";
+  });
+  const [page, setPage] = useState(() => {
+    const url = new URL(window.location.toString());
+
+    if (url.searchParams.has("page")) {
+      return Number(url.searchParams.get("page"));
+    }
+
+    return 1;
+  });
   const perPage = 10;
-  const attendeesFiltered = attendees.slice(
-    (page - 1) * perPage,
-    page * perPage,
-  );
+  const { data } = getEventAttendees({
+    event: "77399dab-b10b-4cbf-be96-8f78eb21e73b",
+    page,
+    perPage,
+    search,
+  });
+
+  function onSearchInputChanged(e: ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+
+    setPage(1);
+    setSearchParams("page", 1);
+    setSearch(value);
+    setSearchParams("search", value);
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -25,7 +53,7 @@ export function AttendeeList() {
             className="flex-1 border-0 bg-transparent p-0 text-sm outline-none"
             placeholder="Buscar participante..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={onSearchInputChanged}
           />
         </div>
       </div>
@@ -49,7 +77,7 @@ export function AttendeeList() {
           </Table.Row>
         </thead>
         <tbody>
-          {attendeesFiltered.map((attendee) => {
+          {data?.attendees.map((attendee) => {
             const createdAt = dayjs(attendee.createdAt).fromNow();
             const checkedInAt = dayjs(attendee.checkedInAt).fromNow();
 
@@ -71,7 +99,13 @@ export function AttendeeList() {
                   </div>
                 </Table.Data>
                 <Table.Data>{createdAt}</Table.Data>
-                <Table.Data>{checkedInAt}</Table.Data>
+                <Table.Data>
+                  {attendee.checkedInAt ? (
+                    checkedInAt
+                  ) : (
+                    <span className="text-zinc-400">Não fez check-in</span>
+                  )}
+                </Table.Data>
                 <Table.Data>
                   <IconButton variant="transparent">
                     <MoreHorizontal className="size-4" />
@@ -84,13 +118,13 @@ export function AttendeeList() {
         <tfoot>
           <tr>
             <Table.Data colSpan={3}>
-              Mostrando {attendeesFiltered.length} de {attendees.length} itens
+              Mostrando {data?.attendees.length} de {data?.total} itens
             </Table.Data>
             <Table.Data className="text-right" colSpan={3}>
               <Pagination
-                items={attendees}
                 page={page}
                 perPage={perPage}
+                total={data?.total}
                 setPage={setPage}
               />
             </Table.Data>

@@ -4,32 +4,41 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { setSearchParams } from "../functions/set-search-params";
 import { IconButton } from "./icon-button";
 
 interface IPagination {
-  items: any[];
   page: number;
   perPage: number;
+  total?: number;
   setPage: (page: number) => void;
 }
 
-export function Pagination({ items, page, perPage, setPage }: IPagination) {
-  const totalPages = Math.ceil(items.length / perPage);
+export function Pagination({ page, perPage, total = 1, setPage }: IPagination) {
+  const totalPages = Math.ceil(total / perPage);
 
   function goToFirstPage() {
     setPage(1);
+    setSearchParams("page", 1);
   }
 
   function goToPreviousPage() {
-    setPage(page - 1);
+    const newPage = page - 1;
+
+    setPage(newPage);
+    setSearchParams("page", newPage);
   }
 
   function goToNextPage() {
-    setPage(page + 1);
+    const newPage = page + 1;
+
+    setPage(newPage);
+    setSearchParams("page", newPage);
   }
 
   function goToLastPage() {
     setPage(totalPages);
+    setSearchParams("page", totalPages);
   }
 
   return (
