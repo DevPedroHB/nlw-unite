@@ -1,5 +1,7 @@
 package dev.pedrohb.passinjava.controllers;
 
+import dev.pedrohb.passinjava.dto.attendee.AttendeeIdDTO;
+import dev.pedrohb.passinjava.dto.attendee.AttendeeRequestDTO;
 import dev.pedrohb.passinjava.dto.attendee.AttendeesListResponseDTO;
 import dev.pedrohb.passinjava.dto.event.EventIdDTO;
 import dev.pedrohb.passinjava.dto.event.EventRequestDTO;
@@ -32,6 +34,15 @@ public class EventController {
     var uri = uriComponentsBuilder.path("/events/{id}").buildAndExpand(eventIdDTO.eventId()).toUri();
 
     return ResponseEntity.created(uri).body(eventIdDTO);
+  }
+
+  @PostMapping("/{eventId}/attendees")
+  public ResponseEntity<AttendeeIdDTO> registerParticipant(@PathVariable String eventId, @RequestBody AttendeeRequestDTO body, UriComponentsBuilder uriComponentsBuilder) {
+    AttendeeIdDTO attendeeIdDTO = this.eventService.registerAttendeeOnEvent(eventId, body);
+
+    var uri = uriComponentsBuilder.path("/attendees/{attendeeId}/badge").buildAndExpand(attendeeIdDTO.attendeeId()).toUri();
+
+    return ResponseEntity.created(uri).body(attendeeIdDTO);
   }
 
   @GetMapping("/attendees/{id}")
