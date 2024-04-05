@@ -1,21 +1,76 @@
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
+import { api } from "@/lib/axios";
+import { useAttendeeBadgeStore } from "@/store/badge-store";
 import { colors } from "@/styles/colors";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
-import { Link, router } from "expo-router";
+import axios from "axios";
+import { Link, Redirect, router } from "expo-router";
 import { useState } from "react";
 import { Alert, Image, StatusBar, View } from "react-native";
+import { IGetAttendeeBadgeResponse } from ".";
+
+interface IGetEventAttendeesResponse {
+  attendeeId: number;
+}
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { data, save } = useAttendeeBadgeStore();
 
-  function handleRegister() {
-    if (!name.trim() || !email.trim()) {
-      return Alert.alert("Inscrição", "Preencha todos os campos!");
+  async function handleRegister() {
+    const eventId = "77399dab-b10b-4cbf-be96-8f78eb21e73b";
+
+    try {
+      if (!name.trim() || !email.trim()) {
+        return Alert.alert("Inscrição", "Preencha todos os campos!");
+      }
+
+      setIsLoading(true);
+
+      const response = await api.post<IGetEventAttendeesResponse>(
+        `/events/${eventId}/attendees`,
+        {
+          name,
+          email,
+        }
+      );
+
+      if (response.data.attendeeId) {
+        const attendeeBadgeResponse = await api.get<IGetAttendeeBadgeResponse>(
+          `/attendees/${response.data.attendeeId}/badge`
+        );
+
+        save(attendeeBadgeResponse.data.badge);
+
+        Alert.alert("Inscrição", "Inscrição realizada com sucesso.", [
+          {
+            text: "OK",
+            onPress: () => {
+              router.push("/ticket");
+            },
+          },
+        ]);
+      }
+    } catch (error) {
+      console.log(error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data.message) {
+          return Alert.alert("Inscrição", "Este email já está cadastrado.");
+        }
+      }
+
+      Alert.alert("Inscrição", "Não foi possível fazer a inscrição.");
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    router.push("/ticket");
+  if (data?.checkInURL) {
+    return <Redirect href="/ticket" />;
   }
 
   return (
@@ -47,7 +102,11 @@ export default function Register() {
             onChangeText={setEmail}
           />
         </Input>
-        <Button title="Realizar inscrição" onPress={handleRegister} />
+        <Button
+          title="Realizar inscrição"
+          onPress={handleRegister}
+          isLoading={isLoading}
+        />
         <Link
           href="/"
           className="text-gray-100 text-base font-bold text-center mt-8"
