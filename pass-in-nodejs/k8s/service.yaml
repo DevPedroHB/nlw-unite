@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: pass-in-service
+  labels:
+    app: pass-in
+
+spec:
+  selector:
+    app: pass-in
+  type: ClusterIP
+  ports:
+    - name: pass-in-service
+      port: 80
+      targetPort: 3333
+      protocol: TCP
